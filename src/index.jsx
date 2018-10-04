@@ -33,6 +33,7 @@ export default class ImagesUploader extends Component {
 		deleteImage: PropTypes.func,
 		clickImage: PropTypes.func,
 		optimisticPreviews: PropTypes.bool,
+		noReplacePreviewsWithResponse: PropTypes.bool,
 		multiple: PropTypes.bool,
 		image: PropTypes.string,
 		notification: PropTypes.string,
@@ -183,6 +184,7 @@ export default class ImagesUploader extends Component {
 			notificationColor,
 			deleteElement,
 			plusElement,
+			noReplacePreviewsWithResponse,
 		} = this.props;
 
 		if ((!urls || urls.length < 1) && (!optimisticUrls || optimisticUrls.length < 1)) {
@@ -195,7 +197,8 @@ export default class ImagesUploader extends Component {
 		}
 		let previews = [];
 		const multiple = this.props.multiple;
-		if (urls
+		if (!noReplacePreviewsWithResponse &&
+			urls
 			&& urls.length > 0
 			&& (!(multiple === false && optimisticUrls && optimisticUrls.length > 0))) {
 			previews = urls.map((url, key) => {
@@ -342,11 +345,21 @@ export default class ImagesUploader extends Component {
 						} else {
 							imagePreviewUrls = this.state.imagePreviewUrls.concat(response);
 						}
-						this.setState({
-							imagePreviewUrls,
-							optimisticPreviews: [],
-							loadState: 'success',
-						});
+
+						if(this.props.noReplacePreviewsWithResponse){
+							this.setState({
+								imagePreviewUrls,
+								loadState: 'success',
+							});
+						}
+						else {
+							this.setState({
+								imagePreviewUrls,
+								optimisticPreviews: [],
+								loadState: 'success',
+							});
+						}
+
 						if (onLoadEnd && typeof onLoadEnd === 'function') {
 							onLoadEnd(false, response);
 						}
